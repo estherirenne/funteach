@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FunTeach</title>
+  <style>
+    /* Warna dan ukuran dikumpulkan di sini supaya gampang diubah */
+    :root { --ungu: #5b4bdb; --abu: #f4f4f8; --garis: #dcdce6; --merah: #c0392b; --kuning: #fff6d6; --hijau: #1e8449; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--abu); color: #222; line-height: 1.5; }
+    header { background: var(--ungu); color: #fff; padding: 20px 16px; text-align: center; }
+    header h1 { margin: 0; font-size: 1.8rem; }
+    header p { margin: 4px 0 0; opacity: .9; }
+    main { max-width: 900px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+    section { background: #fff; border: 1px solid var(--garis); border-radius: 12px; padding: 16px; }
+    h2 { margin-top: 0; font-size: 1.2rem; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input, select, textarea { width: 100%; padding: 8px; border: 1px solid var(--garis); border-radius: 8px; font: inherit; }
+    textarea { min-height: 140px; resize: vertical; }
+    button { background: var(--ungu); color: #fff; border: 0; border-radius: 8px; padding: 9px 16px; font: inherit; cursor: pointer; margin-top: 10px; }
+    button.kecil { padding: 4px 10px; margin: 0; background: #fff; color: var(--ungu); border: 1px solid var(--ungu); }
+    button.aktif { background: var(--ungu); color: #fff; }
+    .hint { font-size: .85rem; color: #666; margin: 4px 0 0; }
+    .pesan-error { color: var(--merah); font-weight: 600; margin-top: 8px; }
+    .kartu { border: 1px solid var(--garis); border-radius: 8px; padding: 10px; margin-top: 8px; }
+    .kartu.bermasalah { border-left: 5px solid var(--merah); }
+    .kartu.penting { background: var(--kuning); border-left: 5px solid #e6a700; }
+    .badge { display: inline-block; font-size: .78rem; padding: 2px 8px; border-radius: 999px; background: var(--abu); margin-right: 6px; }
+    .badge.penting { background: #e6a700; color: #fff; }
+    .masalah { color: var(--merah); margin: 6px 0 0; padding-left: 18px; }
+    .sulit { color: var(--hijau); margin: 6px 0 0; font-size: .92rem; }
+    .baris { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .catatan-ditingkatkan { border-left: 4px solid var(--merah); }
+    .catatan-dipertahankan { border-left: 4px solid var(--hijau); }
+    .catatan-perkembangan { border-left: 4px solid var(--ungu); }
+    @media (min-width: 760px) { .dua-kolom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FunTeach</h1>
+    <p>Asisten persiapan mengajar untuk calon instruktur coding anak</p>
+  </header>
+
+  <main>
+    <!-- ============ BAGIAN 1: CEK MATERI ============ -->
+    <section>
+      <h2>1. Cek Materi</h2>
+      <form id="form-materi">
+        <label for="judul">Judul materi</label>
+        <input id="judul" maxlength="100" required placeholder="Contoh: Pengenalan perulangan">
+
+        <label for="jenjang">Jenjang murid</label>
+        <select id="jenjang">
+          <option value="sd_pemula">SD pemula</option>
+          <option value="sd_lanjut">SD lanjut</option>
+          <option value="smp_sma">SMP - SMA</option>
+        </select>
+
+        <label for="isi">Naskah penjelasan</label>
+        <textarea id="isi" required placeholder="Tulis atau tempel penjelasanmu di sini..."></textarea>
+        <p class="hint">Awali sebuah kalimat dengan tanda <strong>*</strong> untuk menandainya sebagai poin penting.</p>
+
+        <button type="submit">Periksa materi</button>
+        <div id="error-materi" class="pesan-error"></div>
+      </form>
+      <div id="hasil"></div>
+    </section>
+
+    <div class="dua-kolom">
+      <!-- ============ BAGIAN 2: CATATAN MURID ============ -->
+      <section>
+        <h2>2. Catatan Murid</h2>
+        <p class="hint">Mode demo: pakai nama samaran, jangan masukkan data murid sungguhan.</p>
+        <form id="form-murid">
+          <label for="nama">Nama murid (dummy)</label>
+          <input id="nama" maxlength="100" required placeholder="Contoh: Murid A">
+          <label for="jenjang-murid">Jenjang</label>
+          <select id="jenjang-murid">
+            <option value="sd_pemula">SD pemula</option>
+            <option value="sd_lanjut">SD lanjut</option>
+            <option value="smp_sma">SMP - SMA</option>
+          </select>
+          <button type="submit">Tambah murid</button>
+          <div id="error-murid" class="pesan-error"></div>
+        </form>
+        <h3>Daftar murid</h3>
+        <div id="daftar-murid" class="baris"></div>
+
+        <div id="panel-catatan" hidden>
+          <h3 id="judul-catatan"></h3>
+          <form id="form-catatan">
+            <label for="jenis">Jenis catatan</label>
+            <select id="jenis">
+              <option value="perkembangan">Perkembangan</option>
+              <option value="ditingkatkan">Perlu ditingkatkan</option>
+              <option value="dipertahankan">Perlu dipertahankan</option>
+            </select>
+            <label for="isi-catatan">Isi catatan</label>
+            <textarea id="isi-catatan" required maxlength="1000" style="min-height:80px"></textarea>
+            <button type="submit">Simpan catatan</button>
+            <div id="error-catatan" class="pesan-error"></div>
+          </form>
+          <div id="daftar-catatan"></div>
+        </div>
+      </section>
+
+      <!-- ============ BAGIAN 3: RIWAYAT ============ -->
+      <section>
+        <h2>3. Riwayat Pemeriksaan</h2>
+        <div id="riwayat"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // ---------- Fungsi bantu ----------
+    const $ = (id) => document.getElementById(id);
+
+    // Buat elemen HTML dengan isi teks. Memakai textContent (bukan innerHTML)
+    // supaya teks apa pun dari pengguna tidak bisa menjalankan script (aman dari XSS).
+    function el(tag, text, className) {
+      const node = document.createElement(tag);
+      if (text !== undefined && text !== null) node.textContent = text;
+      if (className) node.className = className;
+      return node;
+    }
+
+    const NAMA_JENJANG = { sd_pemula: "SD pemula", sd_lanjut: "SD lanjut", smp_sma: "SMP - SMA" };
+    const NAMA_JENIS = { perkembangan: "Perkembangan", ditingkatkan: "Perlu ditingkatkan", dipertahankan: "Perlu dipertahankan" };
+
+    // Panggil API dan ubah error menjadi pesan yang mudah dibaca
+    async function api(path, options) {
+      const res = await fetch(path, options);
+      let data = null;
+      try { data = await res.json(); } catch (e) { /* respons tanpa JSON */ }
+      if (!res.ok) {
+        const detail = data && data.detail;
+        if (typeof detail === "string") throw new Error(detail);
+        throw new Error("Input belum valid, periksa kolom yang masih kosong. (kode " + res.status + ")");
+      }
+      return data;
+    }
+
+    function kirimJson(method, body) {
+      return { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+    }
+
+    // ---------- Bagian 1: Cek Materi ----------
+    function tampilkanHasil(data) {
+      const box = $("hasil");
+      box.replaceChildren();
+      box.append(el("h3", "Hasil: " + data.judul));
+      box.append(el("p", data.total_kalimat + " kalimat diperiksa, " + data.kalimat_bermasalah + " perlu diperbaiki."));
+
+      if (data.poin_penting.length > 0) {
+        const kotak = el("div", null, "kartu penting");
+        kotak.append(el("strong", "Poin penting yang wajib diulang:"));
+        const daftar = el("ul");
+        data.poin_penting.forEach((p) => daftar.append(el("li", p)));
+        kotak.append(daftar);
+        box.append(kotak);
+      }
+
+      data.kalimat.forEach((s) => {
+        let kelas = "kartu";
+        if (s.masalah.length > 0) kelas += " bermasalah";
+        if (s.penting) kelas += " penting";
+        const kartu = el("div", null, kelas);
+        kartu.append(el("p", s.kalimat));
+        kartu.append(el("span", s.jumlah_kata + " kata", "badge"));
+        if (s.penting) kartu.append(el("span", "penting", "badge penting"));
+
+        if (s.masalah.length > 0) {
+          const ul = el("ul", null, "masalah");
+          s.masalah.forEach((m) => ul.append(el("li", m)));
+          kartu.append(ul);
+        }
+        s.kata_sulit.forEach((k) => {
+          kartu.append(el("p", "Kata sulit \"" + k.kata + "\": jelaskan sebagai " + k.padanan + ".", "sulit"));
+        });
+        box.append(kartu);
+      });
+    }
+
+    $("form-materi").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("error-materi").textContent = "";
+      try {
+        const data = await api("/lessons/analyze", kirimJson("POST", {
+          judul: $("judul").value,
+          isi: $("isi").value,
+          jenjang: $("jenjang").value,
+        }));
+        tampilkanHasil(data);
+        muatRiwayat();
+      } catch (err) {
+        $("error-materi").textContent = err.message;
+      }
+    });
+
+    // ---------- Bagian 3: Riwayat ----------
+    async function muatRiwayat() {
+      const box = $("riwayat");
+      try {
+        const data = await api("/lessons");
+        box.replaceChildren();
+        if (data.length === 0) { box.append(el("p", "Belum ada riwayat.", "hint")); return; }
+        data.forEach((l) => {
+          const kartu = el("div", null, "kartu");
+          kartu.append(el("strong", l.judul));
+          kartu.append(el("p", NAMA_JENJANG[l.jenjang] + " | " + l.total_kalimat + " kalimat, " + l.kalimat_bermasalah + " perlu diperbaiki", "hint"));
+          box.append(kartu);
+        });
+      } catch (err) {
+        box.replaceChildren(el("p", err.message, "pesan-error"));
+      }
+    }
+
+    // ---------- Bagian 2: Catatan Murid ----------
+    let muridTerpilih = null;
+
+    async function muatMurid() {
+      const box = $("daftar-murid");
+      try {
+        const data = await api("/students");
+        box.replaceChildren();
+        if (data.length === 0) { box.append(el("p", "Belum ada murid.", "hint")); return; }
+        data.forEach((m) => {
+          const tombol = el("button", m.nama + " (" + NAMA_JENJANG[m.jenjang] + ")", "kecil");
+          if (muridTerpilih && muridTerpilih.id === m.id) tombol.classList.add("aktif");
+          tombol.addEventListener("click", () => pilihMurid(m));
+          box.append(tombol);
+        });
+      } catch (err) {
+        box.replaceChildren(el("p", err.message, "pesan-error"));
+      }
+    }
+
+    async function pilihMurid(murid) {
+      muridTerpilih = murid;
+      $("panel-catatan").hidden = false;
+      $("judul-catatan").textContent = "Catatan untuk " + murid.nama;
+      muatMurid();
+      muatCatatan();
+    }
+
+    async function muatCatatan() {
+      const box = $("daftar-catatan");
+      try {
+        const data = await api("/students/" + muridTerpilih.id + "/notes");
+        box.replaceChildren();
+        if (data.length === 0) { box.append(el("p", "Belum ada catatan.", "hint")); return; }
+        data.forEach((c) => {
+          const kartu = el("div", null, "kartu catatan-" + c.jenis);
+          kartu.append(el("strong", NAMA_JENIS[c.jenis]));
+          kartu.append(el("p", c.isi));
+          kartu.append(el("small", new Date(c.created_at).toLocaleString("id-ID"), "hint"));
+          box.append(kartu);
+        });
+      } catch (err) {
+        box.replaceChildren(el("p", err.message, "pesan-error"));
+      }
+    }
+
+    $("form-murid").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("error-murid").textContent = "";
+      try {
+        const murid = await api("/students", kirimJson("POST", {
+          nama: $("nama").value,
+          jenjang: $("jenjang-murid").value,
+        }));
+        $("nama").value = "";
+        await pilihMurid(murid);
+      } catch (err) {
+        $("error-murid").textContent = err.message;
+      }
+    });
+
+    $("form-catatan").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("error-catatan").textContent = "";
+      try {
+        await api("/students/" + muridTerpilih.id + "/notes", kirimJson("POST", {
+          jenis: $("jenis").value,
+          isi: $("isi-catatan").value,
+        }));
+        $("isi-catatan").value = "";
+        muatCatatan();
+      } catch (err) {
+        $("error-catatan").textContent = err.message;
+      }
+    });
+
+    // Muat data awal saat halaman dibuka
+    muatMurid();
+    muatRiwayat();
+  </script>
+</body>
+</html>
