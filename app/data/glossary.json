@@ -1,0 +1,17 @@
+{
+  "program": "kumpulan perintah yang dimengerti komputer",
+  "kode": "tulisan perintah untuk komputer",
+  "bug": "kesalahan kecil di dalam program",
+  "debug": "mencari dan memperbaiki kesalahan di program",
+  "algoritma": "urutan langkah untuk menyelesaikan sesuatu",
+  "variabel": "kotak berlabel untuk menyimpan sesuatu",
+  "perulangan": "menyuruh komputer mengulang hal yang sama",
+  "kondisi": "pilihan: kalau iya lakukan ini, kalau tidak lakukan itu",
+  "fungsi": "kumpulan perintah yang diberi nama supaya bisa dipakai lagi",
+  "input": "hal yang kita masukkan ke komputer",
+  "output": "hasil yang keluar dari komputer",
+  "event": "kejadian yang memicu program, misalnya tombol diklik",
+  "sensor": "alat yang bisa merasakan sesuatu, seperti cahaya atau jarak",
+  "logika": "cara berpikir runtut untuk menyelesaikan masalah",
+  "sintaks": "aturan penulisan kode"
+}
