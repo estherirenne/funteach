@@ -1,0 +1,10 @@
+# Virtual environment dan cache Python
+.venv/
+__pycache__/
+*.pyc
+
+# RAHASIA: file ini TIDAK BOLEH masuk GitHub. Yang di-commit cukup .env.example
+.env
+
+# File sampah macOS
+.DS_Store

@@ -1,0 +1,9 @@
+# File yang tidak perlu ikut masuk ke image Docker (bikin build lebih cepat dan image bersih)
+.venv/
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.env
+README.md
+scripts/
