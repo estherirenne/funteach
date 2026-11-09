@@ -1,0 +1,58 @@
+# =====================================================================
+# docker-compose.yml FunTeach
+# Jalankan dengan satu perintah:  docker compose up -d --build
+# =====================================================================
+services:
+
+  # ---------- Aplikasi (FastAPI) ----------
+  app:
+    build: .                          # bangun image dari Dockerfile di folder ini
+    ports:
+      - "${APP_PORT:-8000}:8000"      # port laptop : port container (default 8000)
+    env_file: .env                    # baca konfigurasi (DB_HOST, password, dll) dari .env
+    networks:
+      - funteach-net                  # satu network dengan database
+    depends_on:
+      db:
+        condition: service_healthy    # tunggu sampai database benar-benar siap, bukan sekadar jalan
+    restart: unless-stopped
+
+  # ---------- Database (PostgreSQL) ----------
+  db:
+    image: postgres:16.4-alpine       # tag versi spesifik, varian alpine (kecil)
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # named volume: data tetap ada walau container dihapus
+    networks:
+      - funteach-net
+    healthcheck:                      # cara compose mengecek database sudah siap
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    # Catatan: port database SENGAJA tidak dibuka ke laptop. Hanya service di network yang sama yang bisa mengakses.
+
+  # ---------- Adminer (antarmuka database, hanya jika profile "tools" diaktifkan) ----------
+  adminer:
+    image: adminer:4.8.1
+    profiles: ["tools"]               # tidak ikut jalan kecuali: docker compose --profile tools up -d
+    ports:
+      - "8080:8080"
+    networks:
+      - funteach-net
+    depends_on:
+      db:
+        condition: service_healthy
+
+# User-defined network: container saling menemukan lewat NAMA SERVICE (misal "db")
+networks:
+  funteach-net:
+    driver: bridge
+
+# Named volume untuk data PostgreSQL
+volumes:
+  pgdata:
